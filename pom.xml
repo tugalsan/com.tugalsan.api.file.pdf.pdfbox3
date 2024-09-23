@@ -17,12 +17,12 @@
         <dependency>
             <groupId>org.apache.pdfbox</groupId>
             <artifactId>pdfbox</artifactId>
-            <version>3.0.2</version><!-- 3.0.0 -->
+            <version>3.0.3</version><!-- 3.0.0 -->
         </dependency>
         <dependency>
             <groupId>org.apache.pdfbox</groupId>
             <artifactId>pdfbox-tools</artifactId>
-            <version>3.0.2</version><!-- 2.0.25 -->
+            <version>3.0.3</version><!-- 2.0.25 -->
         </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>

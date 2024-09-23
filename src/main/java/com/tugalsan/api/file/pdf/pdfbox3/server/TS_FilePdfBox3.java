@@ -9,9 +9,9 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 
 @Deprecated //TODO Migration from TS_FilePdfItext to here
-public class TS_FilePdfBox {
+public class TS_FilePdfBox3 {
 
-    final private static TS_Log d = TS_Log.of(TS_FilePdfBox.class);
+    final private static TS_Log d = TS_Log.of(TS_FilePdfBox3.class);
 
     public Path getFile() {
         return file;
@@ -27,7 +27,7 @@ public class TS_FilePdfBox {
     }
     private PDDocument document;
 
-    public TS_FilePdfBox(Path file) {
+    public TS_FilePdfBox3(Path file) {
         this.file = file;
     }
 
