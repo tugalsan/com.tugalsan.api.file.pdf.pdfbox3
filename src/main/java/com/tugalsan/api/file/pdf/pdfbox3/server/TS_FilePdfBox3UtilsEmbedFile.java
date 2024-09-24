@@ -3,19 +3,19 @@ package com.tugalsan.api.file.pdf.pdfbox3.server;
 import java.io.*;
 import java.nio.charset.*;
 import java.util.*;
-import org.apache.pdfbox.*;
 import org.apache.pdfbox.pdmodel.*;
 import org.apache.pdfbox.pdmodel.common.filespecification.*;
 import org.apache.pdfbox.pdmodel.font.*;
 import org.apache.pdfbox.pdmodel.interactive.annotation.*;
 import com.tugalsan.api.list.client.*;
+import com.tugalsan.api.union.client.TGS_UnionExcuseVoid;
 import com.tugalsan.api.unsafe.client.*;
-import org.apache.pdfbox.io.RandomAccessReadBufferedFile;
+import java.nio.file.Path;
 
 public class TS_FilePdfBox3UtilsEmbedFile {
 
-    public static void EmbeddedFiles(String file) {
-        TGS_UnSafe.run(() -> {
+    public static TGS_UnionExcuseVoid createEmbeddedFileExample(Path destFile) {
+        return TGS_UnSafe.call(() -> {
             try (var doc = new PDDocument()) {
                 var page = new PDPage();
                 doc.addPage(page);
@@ -67,31 +67,26 @@ public class TS_FilePdfBox3UtilsEmbedFile {
                 // show attachments panel in some viewers 
                 doc.getDocumentCatalog().setPageMode(PageMode.USE_ATTACHMENTS);
 
-                doc.save(file);
+                doc.save(destFile.toFile());
+                return TGS_UnionExcuseVoid.ofVoid();
+            }
+        }, e -> TGS_UnionExcuseVoid.ofExcuse(e));
+    }
+
+    public static TGS_UnionExcuseVoid extractEmbeddedFiles(Path pdfSrcFile) {
+        return TS_FilePdfBox3UtilsLoad.use(pdfSrcFile, doc -> {
+            var namesDictionary = new PDDocumentNameDictionary(doc.getDocumentCatalog());
+            var efTree = namesDictionary.getEmbeddedFiles();
+            if (efTree != null) {
+                extractFilesFromEFTree(efTree, pdfSrcFile.getParent());
+            }
+            for (var page : doc.getPages()) {
+                extractFilesFromPage(page, pdfSrcFile.getParent());
             }
         });
     }
 
-    public static void ExtractEmbeddedFiles(String file) {
-        TGS_UnSafe.run(() -> {
-            var pdfFile = new File(file);
-            var filePath = pdfFile.getParent() + System.getProperty("file.separator");
-            try (var document = Loader.loadPDF(new RandomAccessReadBufferedFile(filePath))) {
-                var namesDictionary = new PDDocumentNameDictionary(document.getDocumentCatalog());
-                var efTree = namesDictionary.getEmbeddedFiles();
-                if (efTree != null) {
-                    extractFilesFromEFTree(efTree, filePath);
-                }
-
-                // extract files from page annotations
-                for (var page : document.getPages()) {
-                    extractFilesFromPage(page, filePath);
-                }
-            }
-        });
-    }
-
-    private static void extractFilesFromPage(PDPage page, String filePath) {
+    private static void extractFilesFromPage(PDPage page, Path targetFolder) {
         TGS_UnSafe.run(() -> {
             for (var annotation : page.getAnnotations()) {
                 if (annotation instanceof PDAnnotationFileAttachment annotationFileAttachment) {
@@ -99,7 +94,7 @@ public class TS_FilePdfBox3UtilsEmbedFile {
                     if (fileSpec instanceof PDComplexFileSpecification complexFileSpec) {
                         var embeddedFile = getEmbeddedFile(complexFileSpec);
                         if (embeddedFile != null) {
-                            extractFile(filePath, complexFileSpec.getFilename(), embeddedFile);
+                            extractFile(targetFolder, complexFileSpec.getFilename(), embeddedFile);
                         }
                     }
                 }
@@ -107,38 +102,36 @@ public class TS_FilePdfBox3UtilsEmbedFile {
         });
     }
 
-    private static void extractFilesFromEFTree(PDEmbeddedFilesNameTreeNode efTree, String filePath) {
+    private static void extractFilesFromEFTree(PDEmbeddedFilesNameTreeNode efTree, Path targetFolder) {
         TGS_UnSafe.run(() -> {
             var names = efTree.getNames();
             if (names != null) {
-                extractFiles(names, filePath);
+                extractFiles(names, targetFolder);
             } else {
                 var kids = efTree.getKids();
                 for (var node : kids) {
                     names = node.getNames();
-                    extractFiles(names, filePath);
+                    extractFiles(names, targetFolder);
                 }
             }
         });
     }
 
-    private static void extractFiles(Map<String, PDComplexFileSpecification> names, String filePath) {
+    private static void extractFiles(Map<String, PDComplexFileSpecification> names, Path targetFolder) {
         names.entrySet().stream()
                 .map(entry -> entry.getValue())
                 .forEachOrdered(fileSpec -> {
                     var embeddedFile = getEmbeddedFile(fileSpec);
                     if (embeddedFile != null) {
-                        extractFile(filePath, fileSpec.getFilename(), embeddedFile);
+                        extractFile(targetFolder, fileSpec.getFilename(), embeddedFile);
                     }
                 });
     }
 
-    private static void extractFile(String filePath, String filename, PDEmbeddedFile embeddedFile) {
+    private static void extractFile(Path targetFolder, String filename, PDEmbeddedFile embeddedFile) {
         TGS_UnSafe.run(() -> {
-            var embeddedFilename = filePath + filename;
-            var file = new File(filePath + filename);
-            System.out.println("Writing " + embeddedFilename);
-            try (var fos = new FileOutputStream(file)) {
+            var file = targetFolder.resolve(filename);
+            try (var fos = new FileOutputStream(file.toFile())) {
                 fos.write(embeddedFile.toByteArray());
             }
         });

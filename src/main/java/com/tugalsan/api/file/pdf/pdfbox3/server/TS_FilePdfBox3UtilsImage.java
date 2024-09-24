@@ -16,7 +16,6 @@ import java.nio.file.Path;
 import java.util.List;
 import javax.imageio.ImageIO;
 import org.apache.pdfbox.Loader;
-import org.apache.pdfbox.io.RandomAccessReadBufferedFile;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -42,27 +41,18 @@ public class TS_FilePdfBox3UtilsImage {
     }
 
     @Deprecated //TODO: I just wrote it. Not Tested!
-    public static TGS_UnionExcuseVoid toJpg(Path pdfSrcFile, Path jpgDstFile, int pageNumber) {
-        return TGS_UnSafe.call(() -> {
-            TS_FileUtils.deleteFileIfExists(jpgDstFile);
-            if (TS_FileUtils.isExistFile(jpgDstFile)) {
-                return TGS_UnionExcuseVoid.ofExcuse(d.className, "toJpg", "TS_FileUtils.isExistFile(jpgDstFile)");
-            }
-            try (var doc = Loader.loadPDF(new RandomAccessReadBufferedFile(pdfSrcFile.toAbsolutePath().toString()))) {
+    public static TGS_UnionExcuseVoid toJpg(Path pdfSrcFile, Path jpgDstFile, int pageNumber, Integer optionalDPI) {
+        return TS_FilePdfBox3UtilsLoad.use(pdfSrcFile, doc -> {
+            TGS_UnSafe.run(() -> {
                 var renderer = new PDFRenderer(doc);
-                //var image = renderer.renderImage(pageNumber);
-                var image = renderer.renderImageWithDPI(pageNumber, 300);
-                var result = ImageIO.write(image, "JPEG", jpgDstFile.toFile());
+                var bi = optionalDPI == null
+                        ? renderer.renderImage(pageNumber)
+                        : renderer.renderImageWithDPI(pageNumber, 300);
+                var result = ImageIO.write(bi, "JPEG", jpgDstFile.toFile());
                 if (!result) {
-                    return TGS_UnionExcuseVoid.ofExcuse(d.className, "toJpg", "!result");
+                    TGS_UnSafe.thrw(d.className, "toJpg", "!result");
                 }
-            }
-            if (!TS_FileUtils.isExistFile(jpgDstFile)) {
-                return TGS_UnionExcuseVoid.ofExcuse(d.className, "toJpg", "!TS_FileUtils.isExistFile(jpgDstFile)");
-            }
-            return TGS_UnionExcuseVoid.ofVoid();
-        }, e -> {
-            return TGS_UnionExcuseVoid.ofExcuse(e);
+            });
         });
     }
 
