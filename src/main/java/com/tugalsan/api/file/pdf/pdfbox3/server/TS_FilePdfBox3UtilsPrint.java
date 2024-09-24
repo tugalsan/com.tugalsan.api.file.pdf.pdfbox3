@@ -1,4 +1,4 @@
-package com.tugalsan.api.file.pdf.pdfbox3.server.tut;
+package com.tugalsan.api.file.pdf.pdfbox3.server;
 
 import com.tugalsan.api.unsafe.client.*;
 import java.awt.print.Book;
@@ -11,7 +11,6 @@ import javax.print.attribute.standard.PageRanges;
 import javax.print.attribute.standard.Sides;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.io.RandomAccessReadBufferedFile;
-
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.interactive.viewerpreferences.PDViewerPreferences;
 import org.apache.pdfbox.printing.PDFPageable;
@@ -21,9 +20,9 @@ import org.apache.pdfbox.printing.PDFPrintable;
  * Examples of various different ways to print PDFs using PDFBox.
  */
 @Deprecated
-public final class Print {
+public final class TS_FilePdfBox3UtilsPrint {
 
-    private Print() {
+    private TS_FilePdfBox3UtilsPrint() {
     }
 
     /**
@@ -32,7 +31,7 @@ public final class Print {
     public static void main(String[] args) {
         TGS_UnSafe.run(() -> {
             if (args.length != 1) {
-                System.err.println("usage: java " + Print.class.getName() + " <input>");
+                System.err.println("usage: java " + TS_FilePdfBox3UtilsPrint.class.getName() + " <input>");
                 System.exit(1);
             }
 

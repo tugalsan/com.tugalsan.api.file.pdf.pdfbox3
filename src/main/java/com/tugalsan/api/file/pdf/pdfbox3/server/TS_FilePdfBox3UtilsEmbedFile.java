@@ -1,4 +1,4 @@
-package com.tugalsan.api.file.pdf.pdfbox3.server.tut;
+package com.tugalsan.api.file.pdf.pdfbox3.server;
 
 import java.io.*;
 import java.nio.charset.*;
@@ -12,7 +12,7 @@ import com.tugalsan.api.list.client.*;
 import com.tugalsan.api.unsafe.client.*;
 import org.apache.pdfbox.io.RandomAccessReadBufferedFile;
 
-public class EmbeddedFiles {
+public class TS_FilePdfBox3UtilsEmbedFile {
 
     public static void EmbeddedFiles(String file) {
         TGS_UnSafe.run(() -> {

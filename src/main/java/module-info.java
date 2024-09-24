@@ -1,8 +1,11 @@
 module com.tugalsan.api.file.pdf.pdfbox3 {
     requires java.desktop;
     requires jai.imageio.core;
-    requires org.apache.pdfbox; //TODO https://stackoverflow.com/questions/18189314/convert-a-pdf-file-to-image
+    requires org.apache.pdfbox;
+    requires org.apache.pdfbox.debugger;
     requires org.apache.pdfbox.io;
+    requires org.apache.pdfbox.tools;
+    requires org.apache.xmpbox;
     requires com.tugalsan.api.union;
     requires com.tugalsan.api.unsafe;
     requires com.tugalsan.api.tuple;
@@ -22,5 +25,4 @@ module com.tugalsan.api.file.pdf.pdfbox3 {
     requires com.tugalsan.api.file.html;
     requires com.tugalsan.api.file.img;
     exports com.tugalsan.api.file.pdf.pdfbox3.server;
-    exports com.tugalsan.api.file.pdf.pdfbox3.server.tut;
 }

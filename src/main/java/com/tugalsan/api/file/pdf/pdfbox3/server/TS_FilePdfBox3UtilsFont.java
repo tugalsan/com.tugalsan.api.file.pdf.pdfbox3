@@ -1,4 +1,4 @@
-package com.tugalsan.api.file.pdf.pdfbox3.server.tut;
+package com.tugalsan.api.file.pdf.pdfbox3.server;
 
 import com.tugalsan.api.unsafe.client.*;
 import java.io.File;
@@ -12,7 +12,7 @@ import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
-public class Fonts {
+public class TS_FilePdfBox3UtilsFont {
 
     public static void HelloWorldType1(String message, String file, String pfbPath) {
         TGS_UnSafe.run(() -> {

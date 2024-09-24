@@ -35,18 +35,25 @@ public class TS_FilePdfBox3UtilsPage {
 
     final private static TS_Log d = TS_Log.of(TS_FilePdfBox3UtilsPage.class);
 
-    public static Path createPageBlank(Path path) {
+    public static TGS_UnionExcuseVoid remove(Path pdfSrc, Path pdfDest) {
+        return TGS_UnSafe.call(() -> {
+            try (var doc = Loader.loadPDF(pdfSrc.toFile())) {
+                doc.removePage(0);
+                doc.save(pdfDest.toFile());
+                return TGS_UnionExcuseVoid.ofVoid();
+            }
+        }, e -> TGS_UnionExcuseVoid.ofExcuse(e));
+    }
+
+    public static TGS_UnionExcuseVoid createBlank(Path path) {
         return TGS_UnSafe.call(() -> {
             try (var document = new PDDocument();) {
                 var blankPage = new PDPage();
                 document.addPage(blankPage);
                 document.save(path.toFile());
-                return path;
+                return TGS_UnionExcuseVoid.ofVoid();
             }
-        }, e -> {
-            d.ce("createPageBlank", "failed", e.getMessage());
-            return TGS_UnSafe.thrw(e);
-        });
+        }, e -> TGS_UnionExcuseVoid.ofExcuse(e));
     }
 
     @Deprecated //TODO: I just wrote it. Not Tested!
