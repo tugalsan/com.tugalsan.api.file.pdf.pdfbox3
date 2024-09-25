@@ -74,7 +74,7 @@ public class TS_FilePdfBox3UtilsEmbedFile {
     }
 
     public static TGS_UnionExcuseVoid extractEmbeddedFiles(Path pdfSrcFile) {
-        return TS_FilePdfBox3UtilsLoad.use(pdfSrcFile, doc -> {
+        return TS_FilePdfBox3UtilsLoad.use_basic(pdfSrcFile, doc -> {
             var namesDictionary = new PDDocumentNameDictionary(doc.getDocumentCatalog());
             var efTree = namesDictionary.getEmbeddedFiles();
             if (efTree != null) {

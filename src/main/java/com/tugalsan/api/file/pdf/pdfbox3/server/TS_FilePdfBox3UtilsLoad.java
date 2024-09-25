@@ -10,9 +10,18 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 
 public class TS_FilePdfBox3UtilsLoad {
 
-    public static TGS_UnionExcuseVoid use(Path pdfSrcFile, TGS_Func_In1<PDDocument> doc) {
+    public static TGS_UnionExcuseVoid use_basic(Path pdfSrcFile, TGS_Func_In1<PDDocument> doc) {
         return TGS_UnSafe.call(() -> {
-            try (var _doc = Loader.loadPDF(new RandomAccessReadBufferedFile(pdfSrcFile.toAbsolutePath().toString()))) {
+            try (var _doc = Loader.loadPDF(new RandomAccessReadBufferedFile(pdfSrcFile.toFile()))) {
+                doc.run(_doc);
+                return TGS_UnionExcuseVoid.ofVoid();
+            }
+        }, e -> TGS_UnionExcuseVoid.ofExcuse(e));
+    }
+
+    public static TGS_UnionExcuseVoid use_randomAccess(Path pdfSrcFile, TGS_Func_In1<PDDocument> doc) {
+        return TGS_UnSafe.call(() -> {
+            try (var _doc = Loader.loadPDF(pdfSrcFile.toFile())) {
                 doc.run(_doc);
                 return TGS_UnionExcuseVoid.ofVoid();
             }
