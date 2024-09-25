@@ -14,7 +14,6 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.nio.file.Path;
 import java.util.List;
-import javax.imageio.ImageIO;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -30,7 +29,7 @@ import org.apache.pdfbox.util.Matrix;
 
 public class TS_FilePdfBox3UtilsImage {
 
-    final private static TS_Log d = TS_Log.of(true, TS_FilePdfBox3UtilsImage.class);
+    final private static TS_Log d = TS_Log.of(TS_FilePdfBox3UtilsImage.class);
 
     public static PDImageXObject getImage(Path imgFile, PDDocument document) {
         return TGS_UnSafe.call(() -> PDImageXObject.createFromFile(imgFile.toAbsolutePath().toString(), document));
@@ -40,24 +39,14 @@ public class TS_FilePdfBox3UtilsImage {
         return TGS_UnSafe.call(() -> LosslessFactory.createFromImage(document, bi));
     }
 
-    @Deprecated //TODO: I just wrote it. Not Tested!
-    public static TGS_UnionExcuseVoid toJpg(Path pdfSrcFile, Path jpgDstFile, int pageIndex, Integer optionalDPI) {
-        return TS_FilePdfBox3UtilsLoad.use_basic(pdfSrcFile, doc -> {
-            TGS_UnSafe.run(() -> {
-                d.ci("toJpg", "src", pdfSrcFile.getFileName());
-                var renderer = new PDFRenderer(doc);
-                d.ci("toJpg", "renderer initilized");
-                var bi = optionalDPI == null
-                        ? renderer.renderImage(pageIndex)
-                        : renderer.renderImageWithDPI(pageIndex, 300);
-                d.ci("toJpg", "bi initilized");
-                var result = ImageIO.write(bi, "JPEG", jpgDstFile.toFile());
-                d.ci("toJpg", "result", result);
-                if (!result) {
-                    d.ci("toJpg", "throwing....");
-                    TGS_UnSafe.thrw(d.className, "toJpg", "!result");
-                }
-            });
+    public static TGS_UnionExcuse<BufferedImage> toJpg(Path pdfSrcFile, int pageIndex, Integer optionalDPI_DefaultIs300) {
+        return TS_FilePdfBox3UtilsDocument.call_randomAccess(pdfSrcFile, doc -> {
+            return TGS_UnSafe.call(() -> {
+                var bi = optionalDPI_DefaultIs300 == null
+                        ? new PDFRenderer(doc).renderImage(pageIndex)
+                        : new PDFRenderer(doc).renderImageWithDPI(pageIndex, 300);
+                return TGS_UnionExcuse.of(bi);
+            }, e -> TGS_UnionExcuse.ofExcuse(e));
         });
     }
 
