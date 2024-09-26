@@ -28,6 +28,56 @@ public class TS_FilePdfBox3UtilsText {
 
     final private static TS_Log d = TS_Log.of(TS_FilePdfBox3UtilsText.class);
 
+    public TGS_UnionExcuseVoid createLandscapePDF(String message, Path outfile) {
+        return TGS_UnSafe.call(() -> {
+            try (var doc = new PDDocument()) {
+                var font = new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD);
+                var page = new PDPage(PDRectangle.A4);
+                page.setRotation(90);
+                doc.addPage(page);
+                var pageSize = page.getMediaBox();
+                var pageWidth = pageSize.getWidth();
+                var fontSize = 12;
+                var stringWidth = font.getStringWidth(message) * fontSize / 1000f;
+                var startX = 100;
+                var startY = 100;
+
+                try (var contentStream = new PDPageContentStream(doc, page, AppendMode.OVERWRITE, false)) {
+                    // add the rotation using the current transformation matrix
+                    // including a translation of pageWidth to use the lower left corner as 0,0 reference
+                    contentStream.transform(new Matrix(0, 1, -1, 0, pageWidth, 0));
+                    contentStream.setFont(font, fontSize);
+                    contentStream.beginText();
+                    contentStream.newLineAtOffset(startX, startY);
+                    contentStream.showText(message);
+                    contentStream.newLineAtOffset(0, 100);
+                    contentStream.showText(message);
+                    contentStream.newLineAtOffset(100, 100);
+                    contentStream.showText(message);
+                    contentStream.endText();
+
+                    contentStream.moveTo(startX - 2, startY - 2);
+                    contentStream.lineTo(startX - 2, startY + 200 + fontSize);
+                    contentStream.stroke();
+
+                    contentStream.moveTo(startX - 2, startY + 200 + fontSize);
+                    contentStream.lineTo(startX + 100 + stringWidth + 2, startY + 200 + fontSize);
+                    contentStream.stroke();
+
+                    contentStream.moveTo(startX + 100 + stringWidth + 2, startY + 200 + fontSize);
+                    contentStream.lineTo(startX + 100 + stringWidth + 2, startY - 2);
+                    contentStream.stroke();
+
+                    contentStream.moveTo(startX + 100 + stringWidth + 2, startY - 2);
+                    contentStream.lineTo(startX - 2, startY - 2);
+                    contentStream.stroke();
+                }
+                doc.save(outfile.toFile());
+                return TGS_UnionExcuseVoid.ofVoid();
+            }
+        }, e -> TGS_UnionExcuseVoid.ofExcuse(e));
+    }
+
     public static void helloWorldType1(String message, String file, String pfbPath) {
         TGS_UnSafe.run(() -> {
             try (var doc = new PDDocument()) {
@@ -357,7 +407,7 @@ public class TS_FilePdfBox3UtilsText {
         }
     }
 
-    public static void addMessageToEachPage(String infile, String message, String outfile) {
+    public static void addMessageToEachPage1(String infile, String message, String outfile) {
         TGS_UnSafe.run(() -> {
             try (var doc = Loader.loadPDF(new RandomAccessReadBufferedFile(infile))) {
                 var font = new PDType1Font(Standard14Fonts.FontName.HELVETICA);
@@ -397,4 +447,43 @@ public class TS_FilePdfBox3UtilsText {
         });
     }
 
+    public TGS_UnionExcuseVoid addMessageToEachPage2(Path inputFile, String message, Path outfile) {
+        return TGS_UnSafe.call(() -> {
+            try (var doc = Loader.loadPDF(inputFile.toFile())) {
+                var font = new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD);
+                float fontSize = 36.0f;
+
+                for (var page : doc.getPages()) {
+                    var pageSize = page.getMediaBox();
+                    float stringWidth = font.getStringWidth(message) * fontSize / 1000f;
+                    // calculate to center of the page
+                    var rotation = page.getRotation();
+                    var rotate = rotation == 90 || rotation == 270;
+                    var pageWidth = rotate ? pageSize.getHeight() : pageSize.getWidth();
+                    var pageHeight = rotate ? pageSize.getWidth() : pageSize.getHeight();
+                    var centerX = rotate ? pageHeight / 2f : (pageWidth - stringWidth) / 2f;
+                    var centerY = rotate ? (pageWidth - stringWidth) / 2f : pageHeight / 2f;
+
+                    // append the content to the existing stream
+                    try (var contentStream = new PDPageContentStream(doc, page, AppendMode.APPEND, true, true)) {
+                        contentStream.beginText();
+                        // set font and font size
+                        contentStream.setFont(font, fontSize);
+                        // set text color to red
+                        contentStream.setNonStrokingColor(Color.red);
+                        if (rotate) {
+                            // rotate the text according to the page rotation
+                            contentStream.setTextMatrix(Matrix.getRotateInstance(Math.PI / 2, centerX, centerY));
+                        } else {
+                            contentStream.setTextMatrix(Matrix.getTranslateInstance(centerX, centerY));
+                        }
+                        contentStream.showText(message);
+                        contentStream.endText();
+                    }
+                }
+                doc.save(outfile.toFile());
+                return TGS_UnionExcuseVoid.ofVoid();
+            }
+        }, e -> TGS_UnionExcuseVoid.ofExcuse(e));
+    }
 }
