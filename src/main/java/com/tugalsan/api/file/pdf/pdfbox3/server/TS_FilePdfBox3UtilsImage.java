@@ -10,21 +10,15 @@ import com.tugalsan.api.shape.client.TGS_ShapeDimension;
 import com.tugalsan.api.union.client.TGS_UnionExcuse;
 import com.tugalsan.api.union.client.TGS_UnionExcuseVoid;
 import com.tugalsan.api.unsafe.client.TGS_UnSafe;
-import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.nio.file.Path;
 import java.util.List;
-import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.PDPageContentStream.AppendMode;
-import org.apache.pdfbox.pdmodel.font.PDType1Font;
-import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.pdfbox.rendering.PDFRenderer;
-import org.apache.pdfbox.util.Matrix;
 
 public class TS_FilePdfBox3UtilsImage {
 
@@ -64,36 +58,32 @@ public class TS_FilePdfBox3UtilsImage {
         }, e -> TGS_UnionExcuseVoid.ofExcuse(e));
     }
 
-    public static List<TGS_UnionExcuse<Path>> castFromIMGtoPDF_A4PORT_AllFiles(Path directory, boolean skipIfExists, boolean deleteIMGAfterConversion, float quality) {
-        return castFromIMGtoPDF_A4PORT_AllFiles(directory, skipIfExists, deleteIMGAfterConversion, quality, true, true, true);
-    }
-
-    public static List<TGS_UnionExcuse<Path>> castFromIMGtoPDF_A4PORT_AllFiles(Path directory, boolean skipIfExists, boolean deleteIMGAfterConversion, float quality, boolean compressOnInsertImage, boolean compressOnSave, boolean castToRGB) {
+    public static List<TGS_UnionExcuse<Path>> ofPdf_fromImageFolder_A4PORT(Path directory, boolean skipIfExists, boolean deleteIMGAfterConversion, float quality, boolean compressOnInsertImage, boolean compressOnSave, boolean castToRGB) {
         var subFiles = TS_DirectoryUtils.subFiles(directory, null, false, false);
         List<TGS_UnionExcuse<Path>> convertedFiles = TGS_ListUtils.of();
-        subFiles.stream().filter(subFile -> isSupportedIMG(subFile)).forEach(subImg -> {
-            var subPdf = subImg.resolveSibling(TS_FileUtils.getNameLabel(subImg) + ".pdf");
-            if (TS_FileUtils.isExistFile(subPdf)) {
+        subFiles.stream().filter(subFile -> isSupported(subFile)).forEach(imgFile -> {
+            var pdfFile = imgFile.resolveSibling(TS_FileUtils.getNameLabel(imgFile) + ".pdf");
+            if (TS_FileUtils.isExistFile(pdfFile)) {
                 if (skipIfExists) {
                     return;
                 } else {
-                    TS_FileUtils.deleteFileIfExists(subPdf);
+                    TS_FileUtils.deleteFileIfExists(pdfFile);
                 }
             }
-            var u = castFromIMGtoPDF_A4PORT(subImg, subPdf, quality, compressOnInsertImage, compressOnSave, castToRGB);
-            if (u.isExcuse()) {
-                convertedFiles.add(u.toExcuse());
+            var u_file = ofPdf_fromImageFile_A4PORT(imgFile, pdfFile, quality, compressOnInsertImage, compressOnSave, castToRGB);
+            if (u_file.isExcuse()) {
+                convertedFiles.add(u_file.toExcuse());
             } else {
-                convertedFiles.add(TGS_UnionExcuse.of(subPdf));
+                convertedFiles.add(TGS_UnionExcuse.of(pdfFile));
             }
             if (deleteIMGAfterConversion) {
-                TS_FileUtils.deleteFileIfExists(subImg);
+                TS_FileUtils.deleteFileIfExists(imgFile);
             }
         });
         return convertedFiles;
     }
 
-    public static TGS_UnionExcuseVoid castFromIMGtoPDF_A4PORT(Path srcIMG, Path dstPDF, float quality, boolean compressOnInsertImage, boolean compressOnSave, boolean castToRGB) {
+    public static TGS_UnionExcuseVoid ofPdf_fromImageFile_A4PORT(Path srcIMG, Path dstPDF, float quality, boolean compressOnInsertImage, boolean compressOnSave, boolean castToRGB) {
         var a4ImageWidth = 612;
         var a4ImageHeight = 792;
         var offsetX = 0;
@@ -123,7 +113,7 @@ public class TS_FilePdfBox3UtilsImage {
         });
     }
 
-    public static boolean isSupportedIMG(Path imgFile) {
+    public static boolean isSupported(Path imgFile) {
         var fn = TGS_CharSetCast.current().toLowerCase(imgFile.getFileName().toString());
         return fn.endsWith(".jpg") || fn.endsWith(".jpeg") || fn.endsWith(".tif") || fn.endsWith(".tiff") || fn.endsWith(".gif") || fn.endsWith(".bmp") || fn.endsWith(".png");
     }
