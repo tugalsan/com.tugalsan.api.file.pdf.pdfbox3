@@ -7,24 +7,23 @@ import java.nio.file.Path;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 
-public class TS_FilePdfBox3UtilsPageAdd {
+public class TS_FilePdfBox3UtilsPageCreate {
 
-    final private static TS_Log d = TS_Log.of(TS_FilePdfBox3UtilsPageAdd.class);
+    final private static TS_Log d = TS_Log.of(TS_FilePdfBox3UtilsPageCreate.class);
 
-    public static PDPage create(PDDocument doc) {
+    public static PDPage addBlackPage(PDDocument doc) {
         var pdPage = new PDPage();
         doc.addPage(pdPage);
         return pdPage;
     }
 
-    public static TGS_UnionExcuseVoid create(Path pdfDest, boolean compress) {
+    public static TGS_UnionExcuseVoid createBlankFile(Path pdfDest, boolean compress) {
         return TS_FilePdfBox3UtilsDocument.run_new(doc -> {
-            var pdPage = create(doc);
+            addBlackPage(doc);
             var u_save = TS_FilePdfBox3UtilsSave.save(doc, pdfDest, compress);
             if (u_save.isExcuse()) {
                 TGS_UnSafe.thrw(u_save.excuse());
             }
         });
     }
-
 }
