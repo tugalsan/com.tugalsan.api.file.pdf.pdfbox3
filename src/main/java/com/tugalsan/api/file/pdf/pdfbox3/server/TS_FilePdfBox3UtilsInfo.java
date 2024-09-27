@@ -31,9 +31,7 @@ public class TS_FilePdfBox3UtilsInfo {
         return TGS_UnSafe.call(() -> {
             {
                 var info = doc.getDocumentInformation();
-                info.setTitle(title);
-                info.setCreator(producer_creator);
-                info.setSubject(subject_and_description_and_keywords);
+                set(info, title, producer_creator, subject_and_description_and_keywords);
             }
             {
                 var xmp = xmp(title, producer_creator, subject_and_description_and_keywords);
@@ -52,9 +50,7 @@ public class TS_FilePdfBox3UtilsInfo {
         return TGS_UnSafe.call(() -> {
             {
                 var info = new PDDocumentInformation();
-                info.setTitle(title);
-                info.setCreator(producer_creator);
-                info.setSubject(subject_and_description_and_keywords);
+                set(info, title, producer_creator, subject_and_description_and_keywords);
                 pdfMerger.setDestinationDocumentInformation(info);
             }
             {
@@ -68,6 +64,12 @@ public class TS_FilePdfBox3UtilsInfo {
             }
             return TGS_UnionExcuseVoid.ofVoid();
         }, e -> TGS_UnionExcuseVoid.ofExcuse(e));
+    }
+
+    private static void set(PDDocumentInformation info, String title, String producer_creator, String subject_and_description_and_keywords) {
+        info.setTitle(title);
+        info.setCreator(producer_creator);
+        info.setSubject(subject_and_description_and_keywords);
     }
 
     private static XMPMetadata xmp(String title, String producer_creator, String subject_and_description_and_keywords) {
