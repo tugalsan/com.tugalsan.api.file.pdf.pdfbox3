@@ -54,7 +54,6 @@ public class TS_FilePdfBox3UtilsPageScale {
             }
             return yScale;
         };
-
         return scale(pdfSrcFile, pdfDstFile, compressOnSave, compressOnStream, scaleX, scaleY, pageIdxs_optional);
     }
 }
