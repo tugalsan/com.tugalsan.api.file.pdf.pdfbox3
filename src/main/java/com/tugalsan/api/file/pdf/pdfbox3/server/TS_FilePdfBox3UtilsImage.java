@@ -22,7 +22,7 @@ import org.apache.pdfbox.rendering.PDFRenderer;
 
 public class TS_FilePdfBox3UtilsImage {
 
-    final private static TS_Log d = TS_Log.of(TS_FilePdfBox3UtilsImage.class);
+    final private static TS_Log d = TS_Log.of(true, TS_FilePdfBox3UtilsImage.class);
 
     public static TGS_UnionExcuse<PDImageXObject> ofPDImageXObject(PDDocument document, Path imgFile) {
         return TGS_UnSafe.call(() -> {
@@ -59,27 +59,40 @@ public class TS_FilePdfBox3UtilsImage {
     }
 
     public static List<TGS_UnionExcuse<Path>> ofPdf_fromImageFolder_A4PORT(Path directory, boolean skipIfExists, boolean deleteIMGAfterConversion, float quality, boolean compressOnInsertImage, boolean compressOnSave, boolean castToRGB) {
+        d.ci("ofPdf_fromImageFolder_A4PORT", "directory", directory, "#10");
         var subFiles = TS_DirectoryUtils.subFiles(directory, null, false, false);
+        d.ci("ofPdf_fromImageFolder_A4PORT", "directory", directory, "#20");
         List<TGS_UnionExcuse<Path>> convertedFiles = TGS_ListUtils.of();
+        d.ci("ofPdf_fromImageFolder_A4PORT", "directory", directory, "#30");
         subFiles.stream().filter(subFile -> isSupported(subFile)).forEach(imgFile -> {
+            d.ci("ofPdf_fromImageFolder_A4PORT", "directory", directory, "#100", ":1", imgFile);
             var pdfFile = imgFile.resolveSibling(TS_FileUtils.getNameLabel(imgFile) + ".pdf");
+            d.ci("ofPdf_fromImageFolder_A4PORT", "directory", directory, "#100", ":2", imgFile);
             if (TS_FileUtils.isExistFile(pdfFile)) {
                 if (skipIfExists) {
+                    d.ci("ofPdf_fromImageFolder_A4PORT", "directory", directory, "#100", "skipIfExists", imgFile);
                     return;
                 } else {
                     TS_FileUtils.deleteFileIfExists(pdfFile);
                 }
             }
+            d.ci("ofPdf_fromImageFolder_A4PORT", "directory", directory, "#100", ":3", imgFile);
             var u_file = ofPdf_fromImageFile_A4PORT(imgFile, pdfFile, quality, compressOnInsertImage, compressOnSave, castToRGB);
+            d.ci("ofPdf_fromImageFolder_A4PORT", "directory", directory, "#100", ":4", imgFile);
             if (u_file.isExcuse()) {
+                d.ce("ofPdf_fromImageFolder_A4PORT", "directory", directory, "#100", "isExcuse", imgFile, u_file.excuse().getMessage());
                 convertedFiles.add(u_file.toExcuse());
             } else {
+                d.ci("ofPdf_fromImageFolder_A4PORT", "directory", directory, "#100", ":5", imgFile);
                 convertedFiles.add(TGS_UnionExcuse.of(pdfFile));
             }
+            d.ci("ofPdf_fromImageFolder_A4PORT", "directory", directory, "#100", ":6", imgFile);
             if (deleteIMGAfterConversion) {
                 TS_FileUtils.deleteFileIfExists(imgFile);
             }
+            d.ci("ofPdf_fromImageFolder_A4PORT", "directory", directory, "#100", ":7", imgFile);
         });
+        d.ci("ofPdf_fromImageFolder_A4PORT", "directory", directory, "#200");
         return convertedFiles;
     }
 
