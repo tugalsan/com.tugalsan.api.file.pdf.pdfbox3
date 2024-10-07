@@ -22,7 +22,7 @@ import org.apache.pdfbox.rendering.PDFRenderer;
 
 public class TS_FilePdfBox3UtilsImage {
 
-    final private static TS_Log d = TS_Log.of(true, TS_FilePdfBox3UtilsImage.class);
+    final private static TS_Log d = TS_Log.of(false, TS_FilePdfBox3UtilsImage.class);
 
     public static TGS_UnionExcuse<PDImageXObject> ofPDImageXObject(PDDocument document, Path imgFile) {
         return TGS_UnSafe.call(() -> {
